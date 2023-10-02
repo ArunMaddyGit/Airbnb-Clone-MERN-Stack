@@ -10,6 +10,8 @@ cd flodername > yarn
 tailwind in client/foldername
 
 >yarn add tailwindcss postcss autoprefixer
+
+npx tailwind init -p
 --------------------------------
 yarn add react-router-dom
 
