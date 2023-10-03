@@ -1,47 +1,50 @@
-import {Link, Navigate} from "react-router-dom";
-import {useContext, useState} from "react";
+import {Link, useParams} from "react-router-dom";
+import {useEffect, useState} from "react";
 import axios from "axios";
-import {UserContext} from "../UserContext.jsx";
+import BookingWidget from "../BookingWidget";
+import PlaceGallery from "../PlaceGallery";
+import AddressLink from "../AddressLink";
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [redirect, setRedirect] = useState(false);
-  const {setUser} = useContext(UserContext);
-  async function handleLoginSubmit(ev) {
-    ev.preventDefault();
-    try {
-      const {data} = await axios.post('/login', {email,password});
-      setUser(data);
-      alert('Login successful');
-      setRedirect(true);
-    } catch (e) {
-      alert('Login failed');
+export default function PlacePage() {
+  const {id} = useParams();
+  const [place,setPlace] = useState(null);
+  useEffect(() => {
+    if (!id) {
+      return;
     }
-  }
+    axios.get(`/places/${id}`).then(response => {
+      setPlace(response.data);
+    });
+  }, [id]);
 
-  if (redirect) {
-    return <Navigate to={'/'} />
-  }
+  if (!place) return '';
+
+
 
   return (
-    <div className="mt-4 grow flex items-center justify-around">
-      <div className="mb-64">
-        <h1 className="text-4xl text-center mb-4">Login</h1>
-        <form className="max-w-md mx-auto" onSubmit={handleLoginSubmit}>
-          <input type="email"
-                 placeholder="your@email.com"
-                 value={email}
-                 onChange={ev => setEmail(ev.target.value)} />
-          <input type="password"
-                 placeholder="password"
-                 value={password}
-                 onChange={ev => setPassword(ev.target.value)} />
-          <button className="primary">Login</button>
-          <div className="text-center py-2 text-gray-500">
-            Don't have an account yet? <Link className="underline text-black" to={'/register'}>Register now</Link>
+    <div className="mt-4 bg-gray-100 -mx-8 px-8 pt-8">
+      <h1 className="text-3xl">{place.title}</h1>
+      <AddressLink>{place.address}</AddressLink>
+      <PlaceGallery place={place} />
+      <div className="mt-8 mb-8 grid gap-8 grid-cols-1 md:grid-cols-[2fr_1fr]">
+        <div>
+          <div className="my-4">
+            <h2 className="font-semibold text-2xl">Description</h2>
+            {place.description}
           </div>
-        </form>
+          Check-in: {place.checkIn}<br />
+          Check-out: {place.checkOut}<br />
+          Max number of guests: {place.maxGuests}
+        </div>
+        <div>
+          <BookingWidget place={place} />
+        </div>
+      </div>
+      <div className="bg-white -mx-8 px-8 py-8 border-t">
+        <div>
+          <h2 className="font-semibold text-2xl">Extra info</h2>
+        </div>
+        <div className="mb-4 mt-2 text-sm text-gray-700 leading-5">{place.extraInfo}</div>
       </div>
     </div>
   );
