@@ -12,6 +12,7 @@ export default function PhotosUploader({addedPhotos,onChange}) {
     });
     setPhotoLink('');
   }
+  
   function uploadPhoto(ev) {
     const files = ev.target.files;
     const data = new FormData();
