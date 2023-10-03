@@ -148,13 +148,22 @@ app.post('/upload-by-link', async (req,res) => {
   res.json(newName,);
 });
 
-const photosMiddleware = multer({dest:'/tmp'});
+const photosMiddleware = multer({dest:'/uploads'});
 app.post('/upload', photosMiddleware.array('photos', 100), async (req,res) => {
   const uploadedFiles = [];
   for (let i = 0; i < req.files.length; i++) {
     const {path,originalname,mimetype} = req.files[i];
-    const url = await uploadToS3(path, originalname, mimetype);
-    uploadedFiles.push(url);
+    const parts = originalname.split('.');
+    const ext = parts[parts.length - 1];
+    const newpath = path + '.' + ext;
+    fs.renameSync(path,newpath);
+
+    // const url = await uploadToS3(path, originalname, mimetype);
+    // uploadedFiles.push(newpath.replace('/uploads/',''));
+    uploadedFiles.push(originalname);
+    // console.log(path)
+    // console.log(originalname)
+    // console.log(newpath)
   }
   res.json(uploadedFiles);
 });
